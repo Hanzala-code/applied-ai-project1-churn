@@ -45,3 +45,41 @@ trained on the IBM Telco Customer Churn dataset (7,043 customers, 26.5% churn ra
 
 **Chosen threshold: 0.20** — catches 108 more churners than default 0.5,
 saving an estimated PKR 285,000 net over the default threshold.
+
+
+#  Model Optimization and Unsupervised Learning
+## Week 3:
+
+- Split-to-split accuracy range across 20 seeds: 0.780 to 0.828 
+  (std 0.0104, theoretical SE 0.0107, 95% CI ±0.021)
+
+- 5-fold CV AUC:
+  - LR  (tuned C=10):   0.846 +/- 0.013
+  - RF  (random search): 0.844 +/- 0.011
+  - XGBoost (tuned):    0.850 +/- 0.012
+
+- Tuning: best RF params — max_depth=15, min_samples_leaf=15, 
+  max_features=0.213; random search (24 iterations) completed 
+  in 131s and matched grid search quality while exploring 
+  a wider parameter space
+
+- XGBoost early stopping chose 247 trees out of 2,000; 
+  best params: learning_rate=0.034, max_depth=2, 
+  n_estimators=476, reg_lambda=1.974
+
+- Test AUC of final model (XGBoost, used once): 0.8483
+  recall 0.521, precision 0.659 — within CV mean ± 2 std ✓
+
+- Customer segments (k=4):
+  - "New, High Spenders"  — 2,157 customers, churn 43% → proactive outreach before month 18
+  - "New, Budget"         — 1,918 customers, churn 32% → free service bundle for 3 months
+  - "Loyal, Heavy Users"  — 1,938 customers, churn 14% → reward programme, upsell
+  - "Loyal, Light Users"  — 1,030 customers, churn  5% → minimal intervention needed
+
+- PCA: 15 of 30 components explain 90% of the variance — 
+  half the features are redundant, driven by collinear 
+  "No internet service" dummy columns (all loading at 0.302 on PC1)
+
+- Biggest lesson: a single train/test split can swing ±0.024 
+  accuracy on the same model and data — always report 
+  cross-validated mean ± std, never a bare number
